@@ -1,8 +1,11 @@
 package com.example.groupmoney
 
-data class EntryData(val name: List<String>,
-                     val amount: Int,
-                     val method: String = "N/A",
-                     val forWhom: List<String>)
+import java.util.jar.JarEntry
+
+data class DataDetailClass(val paidBy: List<String>,
+                           var amount: Int,
+                           val forWhom: List<String>)
+
+data class FinalDetails(var allEntry: List<DataDetailClass>)
 
 
