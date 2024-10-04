@@ -38,6 +38,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -55,6 +56,7 @@ fun dataEntryScreen(finalDetails: FinalDetails) {
     val listOfPayers = remember { mutableStateListOf<String>() }
     var amount by remember { mutableStateOf("") }
     val listOfBeingPaidFor = remember { mutableStateListOf<String>() }
+    val context = LocalContext.current
     Box(modifier = Modifier.fillMaxSize()) {
         Column {
             Spacer(
@@ -117,13 +119,14 @@ fun dataEntryScreen(finalDetails: FinalDetails) {
                                 .padding(16.dp)) {
                             Button(onClick = {
                                 nameList.add(name)
-//                                Toast.makeText(context, "${name} Added", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, "${name} Added", Toast.LENGTH_SHORT).show()
                                 name = ""
                             }) {
                                 Text(text = "Next")
                             }
                             Button(onClick = {
                                 nameList.add(name)
+                                Toast.makeText(context, "${name} Added", Toast.LENGTH_SHORT).show()
                                 namePopup = false
                             }) {
                                 Text(text = "Done")
@@ -167,6 +170,7 @@ fun dataEntryScreen(finalDetails: FinalDetails) {
                                         DropdownMenuItem(
                                             text = { Text(item) },
                                             onClick = {
+                                                Toast.makeText(context, "$item Selected", Toast.LENGTH_SHORT).show()
                                                 if (item in listOfPayers) {}
                                                 else {
                                                     listOfPayers.add(item)
@@ -191,6 +195,7 @@ fun dataEntryScreen(finalDetails: FinalDetails) {
                                         DropdownMenuItem(
                                             text = { Text(item) },
                                             onClick = {
+                                                Toast.makeText(context, "$item Selected", Toast.LENGTH_SHORT).show()
                                                 if (item in listOfBeingPaidFor) {}
                                                 else {
                                                     listOfBeingPaidFor.add(item)
@@ -227,6 +232,7 @@ fun dataEntryScreen(finalDetails: FinalDetails) {
                                 listOfPayers.clear()
                                 amount = ""
                                 listOfBeingPaidFor.clear()
+                                Toast.makeText(context, "Transaction Added", Toast.LENGTH_SHORT).show()
                             }) {
                                 Text(text = "Next")
                             }
@@ -237,6 +243,7 @@ fun dataEntryScreen(finalDetails: FinalDetails) {
                                 amount=""
                                 tempFinalDetails.add(entry.copy())
                                 finalDetails.allEntry = tempFinalDetails
+                                Toast.makeText(context, "Transaction Added", Toast.LENGTH_SHORT).show()
                                 detailPopup = false
                             }) {
                                 Text(text = "Done")
