@@ -1,11 +1,8 @@
 package com.example.groupmoney
 
-import android.content.ClipData.Item
+
 import android.widget.Toast
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,7 +16,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.Face
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -47,18 +43,33 @@ import androidx.compose.ui.unit.sp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun dataEntryScreen(finalDetails: FinalDetails) {
+fun dataEntryScreen(finalDetails: FinalDetails, goToCalculationPage: (FinalDetails) -> Unit) {
     var name by remember{ mutableStateOf("") }
+    var amount by remember { mutableStateOf("") }
     val nameList = remember {mutableStateListOf<String>()}
     val tempFinalDetails = remember {mutableStateListOf<DataDetailClass>()}
     var namePopup by remember { mutableStateOf(false) }
-    var detailPopup by remember { mutableStateOf(false) }
+    var detailPopup by remember { mutableStateOf(true) }
+    val listOfPayersWithAmount = remember { mutableStateListOf<IndividualPart>() }
     val listOfPayers = remember { mutableStateListOf<String>() }
-    var amount by remember { mutableStateOf("") }
     val listOfBeingPaidFor = remember { mutableStateListOf<String>() }
     val context = LocalContext.current
+
+    /// Sample Data
+//    val list1 = listOf<String>("Uday","Nagu","Prince","Tipu")
+//    val indi1 = IndividualPart("Uday",100)
+//    val indi2 = IndividualPart("Prince",200)
+//    val indi3 = IndividualPart("Tipu",1000)
+//    val indi4 = IndividualPart("Nagu",2000)
+//    val listOfIndi1 = listOf<IndividualPart>(indi1, indi2)
+//    val listOfIndi2 = listOf<IndividualPart>(indi3, indi4)
+//    val helper1 = DataDetailClass(listOfIndi1,list1)
+//    val helper2 = DataDetailClass(listOfIndi2,list1)
+//    val finale = listOf<DataDetailClass>(helper1, helper2)
+    ////
+
     Box(modifier = Modifier.fillMaxSize()) {
-        Column {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Spacer(
                 modifier = Modifier
                     .padding(10.dp)
@@ -136,6 +147,7 @@ fun dataEntryScreen(finalDetails: FinalDetails) {
                 }
             }
             if (detailPopup) {
+                var dropdown by remember{ mutableStateOf(false) }
                 AlertDialog(onDismissRequest = {detailPopup=false},
                     modifier = Modifier
                         .padding(8.dp)
@@ -160,8 +172,7 @@ fun dataEntryScreen(finalDetails: FinalDetails) {
                                     .padding(8.dp),
                                 fontSize = 15.sp)
                             Box {
-                                var dropdown by remember{ mutableStateOf(false) }
-                                Button(onClick = { dropdown = !dropdown }, modifier = Modifier.padding(8.dp)) {
+                                Button(onClick = { dropdown = !dropdown }, modifier = Modifier.padding(top = 8.dp)) {
                                     Text(text = "Drop Down")
                                     Icon(Icons.Default.ArrowDropDown,contentDescription = null)
                                 }
@@ -171,17 +182,50 @@ fun dataEntryScreen(finalDetails: FinalDetails) {
                                             text = { Text(item) },
                                             onClick = {
                                                 Toast.makeText(context, "$item Selected", Toast.LENGTH_SHORT).show()
+                                                name = item
                                                 if (item in listOfPayers) {}
                                                 else {
                                                     listOfPayers.add(item)
                                                 }
+                                                dropdown = false
                                             })
                                     }
                                 }
                             }
+
+
+                            Row(modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(bottom = 8.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Text(text = "Enter Amount",
+                                    modifier = Modifier
+                                        .padding(24.dp)
+                                        .padding(top = 17.dp),
+                                    fontSize = 15.sp)
+                                OutlinedTextField(value = amount,
+                                    label = {Text("")},
+                                    onValueChange = {
+                                        amount = it},
+                                    modifier = Modifier.padding(16.dp)
+                                )
+                            }
+                            Button(onClick = {
+                                val entry = IndividualPart(name,amount.toInt())
+                                name = ""
+                                amount = ""
+                                listOfPayersWithAmount.add(entry.copy())
+                                dropdown = true
+                            }) {
+                                Text(text = "Add more people")
+                            }
+
+
                             Text(text = "Select people for whom the transactions were done for",
                                 modifier = Modifier
                                     .fillMaxWidth()
+                                    .padding(top = 10.dp)
                                     .padding(8.dp),
                                 fontSize = 15.sp)
                             Box {
@@ -206,45 +250,44 @@ fun dataEntryScreen(finalDetails: FinalDetails) {
                             }
                         }
 
-                        Row(modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            Text(text = "Enter Amount",
-                                modifier = Modifier
-                                    .padding(24.dp)
-                                    .padding(top = 17.dp),
-                                fontSize = 15.sp)
-                            OutlinedTextField(value = amount,
-                                label = {Text("")},
-                                onValueChange = {
-                                    amount = it},
-                                modifier = Modifier.padding(16.dp)
-                            )
-                        }
-
                         Row(horizontalArrangement = Arrangement.SpaceEvenly,
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(16.dp)) {
                             Button(onClick = {
-                                val entry = DataDetailClass(listOfPayers.toList(),amount.toInt(),listOfBeingPaidFor.toList())
+                                val indientry = IndividualPart(name,amount.toInt())
+                                listOfPayersWithAmount.add(indientry.copy())
+                                val entry = DataDetailClass(
+                                    listOfPayersWithAmount.toList(),
+                                    listOfBeingPaidFor.toList()
+                                )
+                                amount = ""
                                 tempFinalDetails.add(entry)
                                 listOfPayers.clear()
-                                amount = ""
+                                listOfPayersWithAmount.clear()
                                 listOfBeingPaidFor.clear()
-                                Toast.makeText(context, "Transaction Added", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, "Transaction Added", Toast.LENGTH_SHORT)
+                                    .show()
                             }) {
                                 Text(text = "Next")
                             }
                             Button(onClick = {
-                                val entry = DataDetailClass(listOfPayers.toList(),amount.toInt(),listOfBeingPaidFor.toList())
-                                listOfBeingPaidFor.clear()
+                                val indientry = IndividualPart(name,amount.toInt())
+                                listOfPayersWithAmount.add(indientry.copy())
+                                val entry = DataDetailClass(
+                                    listOfPayersWithAmount.toList(),
+                                    listOfBeingPaidFor.toList()
+                                )
+                                tempFinalDetails.add(entry)
                                 listOfPayers.clear()
-                                amount=""
-                                tempFinalDetails.add(entry.copy())
+                                listOfPayersWithAmount.clear()
+                                listOfBeingPaidFor.clear()
+
+                                Toast.makeText(context, "Transaction Added", Toast.LENGTH_SHORT)
+                                    .show()
                                 finalDetails.allEntry = tempFinalDetails
-                                Toast.makeText(context, "Transaction Added", Toast.LENGTH_SHORT).show()
                                 detailPopup = false
+                                amount = ""
                             }) {
                                 Text(text = "Done")
                             }
@@ -255,9 +298,15 @@ fun dataEntryScreen(finalDetails: FinalDetails) {
             else {
                 showTransactions(tempFinalDetails)
             }
+            if (!tempFinalDetails.isEmpty()) {
+                Button(onClick = { goToCalculationPage(finalDetails) }) {
+                    Text("Calculate")
+                }
+            }
         }
     }
 }
+
 
 
 @Composable
@@ -275,13 +324,15 @@ fun entryDesign(entry: DataDetailClass) {
     Row(modifier = Modifier
         .padding(8.dp)
         .fillMaxWidth(), horizontalArrangement = Arrangement.Absolute.SpaceBetween) {
+        var totalAmount = 0
         Row {
             Icon(Icons.Default.Face, contentDescription = null, modifier = Modifier.padding(8.dp))
             Column(modifier = Modifier.padding(8.dp)) {
-                Text("Paid By:")
-                Row {
-                    entry.paidBy.forEach { name ->
-                        Text(text = "$name  ", textAlign = TextAlign.Left)
+                Text("Paid By and Amount:")
+                Column {
+                    entry.listOfIndividualPart.forEach { item ->
+                        totalAmount += item.amount.toInt()
+                        Text(text = "${item.name}: ${item.amount}  ", textAlign = TextAlign.Left)
                     }
                 }
                 Spacer(modifier = Modifier.height(10.dp))
@@ -293,13 +344,14 @@ fun entryDesign(entry: DataDetailClass) {
                 }
             }
         }
-        Text ("Amount Paid: ${entry.amount}" , textAlign = TextAlign.Right , modifier = Modifier.padding(8.dp))
+        Text ("Amount Paid: $totalAmount" , textAlign = TextAlign.Right , modifier = Modifier.padding(8.dp))
     }
 }
+
 
 
 @Preview(showBackground = true)
 @Composable
 fun dataEntryScreenPreview(){
-    dataEntryScreen(finalDetails = FinalDetails(emptyList()))
+    dataEntryScreen(finalDetails = FinalDetails(emptyList()),{})
 }
