@@ -11,6 +11,7 @@ data class IndividualPart(val name: String,
 data class FinalDetails(var allEntry: List<DataDetailClass>,
                         var nameList: List<String>)
 
+
 data class OneOnOnePayments(
     var from: String,
     var to: String,

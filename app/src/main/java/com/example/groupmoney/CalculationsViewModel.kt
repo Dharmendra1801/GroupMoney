@@ -13,8 +13,8 @@ class CalculationsViewModel(finalDetails: FinalDetails): ViewModel() {
     val result: State<Result> = _result
 
     private val detailedResult: MutableList<OneOnOnePayments> = mutableListOf()
-    val normalResult: MutableList<OneOnOnePayments> = mutableListOf()
-    val simplifiedResult: MutableList<OneOnOnePayments> = mutableListOf()
+    private val normalResult: MutableList<OneOnOnePayments> = mutableListOf()
+    private val simplifiedResult: MutableList<OneOnOnePayments> = mutableListOf()
 
 
 //    val list1 = listOf<String>("Uday","Prince","Tipu","Nagu")
@@ -59,20 +59,32 @@ class CalculationsViewModel(finalDetails: FinalDetails): ViewModel() {
         val newMat: Array<Array<Int>> = Array(matrix.size) { i ->
             matrix[i].clone()
         }
+
+        for (i in newMat.indices) {
+            for (j in newMat[i].indices) {
+                if (newMat[i][j]==0) {continue}
+                if (i==j) {continue}
+                if (newMat[i][j]>=newMat[j][i]) {
+                    newMat[i][j]-=newMat[j][i]
+                    newMat[j][i]=0
+                }
+                else {
+                    newMat[j][i]-=newMat[i][j]
+                    newMat[i][j]=0
+                }
+            }
+        }
+
+        converter(newMat,normalResult,nameList)
+        _result.value = _result.value.copy(normal = normalResult)
     }
 
     private fun converter(m: Array<Array<Int>>, l: MutableList<OneOnOnePayments>, nl: List<String>) {
         for (i in m.indices) {
-            var check = false
-            var entry = OneOnOnePayments("",nl[i],0)
             for (j in m[i].indices) {
-                check = true
                 if (m[i][j]==0) {continue}
                 if (i==j) {continue}
-                entry.from = nl[j]
-                entry.amount = m[i][j]
-            }
-            if (check) {
+                var entry = OneOnOnePayments(nl[j],nl[i],m[i][j])
                 l.add(entry.copy())
             }
         }
