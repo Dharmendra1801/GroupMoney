@@ -49,10 +49,11 @@ fun dataEntryScreen(finalDetails: FinalDetails, goToCalculationPage: (FinalDetai
     val nameList = remember {mutableStateListOf<String>()}
     val tempFinalDetails = remember {mutableStateListOf<DataDetailClass>()}
     var namePopup by remember { mutableStateOf(false) }
-    var detailPopup by remember { mutableStateOf(true) }
+    var detailPopup by remember { mutableStateOf(false) }
     val listOfPayersWithAmount = remember { mutableStateListOf<IndividualPart>() }
     val listOfPayers = remember { mutableStateListOf<String>() }
     val listOfBeingPaidFor = remember { mutableStateListOf<String>() }
+    var totalAmount by remember { mutableStateOf(0) }
     val context = LocalContext.current
 
     /// Sample Data
@@ -130,14 +131,14 @@ fun dataEntryScreen(finalDetails: FinalDetails, goToCalculationPage: (FinalDetai
                                 .padding(16.dp)) {
                             Button(onClick = {
                                 nameList.add(name)
-                                Toast.makeText(context, "${name} Added", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, "$name Added", Toast.LENGTH_SHORT).show()
                                 name = ""
                             }) {
                                 Text(text = "Next")
                             }
                             Button(onClick = {
                                 nameList.add(name)
-                                Toast.makeText(context, "${name} Added", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, "$name Added", Toast.LENGTH_SHORT).show()
                                 namePopup = false
                             }) {
                                 Text(text = "Done")
@@ -213,6 +214,7 @@ fun dataEntryScreen(finalDetails: FinalDetails, goToCalculationPage: (FinalDetai
                             }
                             Button(onClick = {
                                 val entry = IndividualPart(name,amount.toInt())
+                                totalAmount+=amount.toInt()
                                 name = ""
                                 amount = ""
                                 listOfPayersWithAmount.add(entry.copy())
@@ -256,9 +258,11 @@ fun dataEntryScreen(finalDetails: FinalDetails, goToCalculationPage: (FinalDetai
                                 .padding(16.dp)) {
                             Button(onClick = {
                                 val indientry = IndividualPart(name,amount.toInt())
+                                totalAmount+=amount.toInt()
                                 listOfPayersWithAmount.add(indientry.copy())
                                 val entry = DataDetailClass(
                                     listOfPayersWithAmount.toList(),
+                                    totalAmount,
                                     listOfBeingPaidFor.toList()
                                 )
                                 amount = ""
@@ -273,9 +277,11 @@ fun dataEntryScreen(finalDetails: FinalDetails, goToCalculationPage: (FinalDetai
                             }
                             Button(onClick = {
                                 val indientry = IndividualPart(name,amount.toInt())
+                                totalAmount+=amount.toInt()
                                 listOfPayersWithAmount.add(indientry.copy())
                                 val entry = DataDetailClass(
                                     listOfPayersWithAmount.toList(),
+                                    totalAmount,
                                     listOfBeingPaidFor.toList()
                                 )
                                 tempFinalDetails.add(entry)
@@ -286,6 +292,7 @@ fun dataEntryScreen(finalDetails: FinalDetails, goToCalculationPage: (FinalDetai
                                 Toast.makeText(context, "Transaction Added", Toast.LENGTH_SHORT)
                                     .show()
                                 finalDetails.allEntry = tempFinalDetails
+                                finalDetails.nameList = nameList
                                 detailPopup = false
                                 amount = ""
                             }) {
@@ -324,14 +331,12 @@ fun entryDesign(entry: DataDetailClass) {
     Row(modifier = Modifier
         .padding(8.dp)
         .fillMaxWidth(), horizontalArrangement = Arrangement.Absolute.SpaceBetween) {
-        var totalAmount = 0
         Row {
             Icon(Icons.Default.Face, contentDescription = null, modifier = Modifier.padding(8.dp))
             Column(modifier = Modifier.padding(8.dp)) {
                 Text("Paid By and Amount:")
                 Column {
                     entry.listOfIndividualPart.forEach { item ->
-                        totalAmount += item.amount.toInt()
                         Text(text = "${item.name}: ${item.amount}  ", textAlign = TextAlign.Left)
                     }
                 }
@@ -344,7 +349,7 @@ fun entryDesign(entry: DataDetailClass) {
                 }
             }
         }
-        Text ("Amount Paid: $totalAmount" , textAlign = TextAlign.Right , modifier = Modifier.padding(8.dp))
+        Text ("Amount Paid: ${entry.totalAmount}" , textAlign = TextAlign.Right , modifier = Modifier.padding(8.dp))
     }
 }
 
@@ -353,5 +358,5 @@ fun entryDesign(entry: DataDetailClass) {
 @Preview(showBackground = true)
 @Composable
 fun dataEntryScreenPreview(){
-    dataEntryScreen(finalDetails = FinalDetails(emptyList()),{})
+    dataEntryScreen(finalDetails = FinalDetails(emptyList(), emptyList()),{})
 }
