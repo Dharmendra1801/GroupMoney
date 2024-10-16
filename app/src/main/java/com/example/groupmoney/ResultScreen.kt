@@ -8,7 +8,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.ExitToApp
+import androidx.compose.material.icons.filled.Face
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -52,7 +59,9 @@ fun ResultScreen() {
     var no by remember { mutableStateOf("1") }
     
 
-    Column(modifier = Modifier.fillMaxSize()) {
+    Column(modifier = Modifier
+        .fillMaxSize()
+        .padding(8.dp)) {
         Text(text = "Result",
             textAlign = TextAlign.Center,
             modifier = Modifier
@@ -71,16 +80,24 @@ fun ResultScreen() {
         }
 
         Row(verticalAlignment = Alignment.Bottom,
-            modifier = Modifier.padding(16.dp).fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween) {
-            Button(onClick = { no="1" }) {
-                Text(text = "Normal")
+            modifier = Modifier
+                .padding(16.dp)
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceEvenly) {
+            if (no!="1") {
+                Button(onClick = { no = "1" }) {
+                    Text(text = "Normal")
+                }
             }
-            Button(onClick = { no="2" }) {
-                Text(text = "Detailed")
+            if (no!="2") {
+                Button(onClick = { no = "2" }) {
+                    Text(text = "Detailed")
+                }
             }
-            Button(onClick = { no="3" }) {
-                Text(text = "Simplified")
+            if (no!="3") {
+                Button(onClick = { no = "3" }) {
+                    Text(text = "Simplified")
+                }
             }
         }
     }
@@ -89,10 +106,25 @@ fun ResultScreen() {
 
 @Composable
 fun displayForList(list: List<OneOnOnePayments>) {
-    LazyColumn(modifier = Modifier.padding(16.dp)) {
+    LazyColumn() {
         items(list) {
-            Row(modifier = Modifier.fillMaxWidth()) {
-                Text(text = "${it.from} pays ${it.to}: ${it.amount}")
+            Row(modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween) {
+                Row(modifier = Modifier.padding(top = 7.dp)) {
+                    Icon(
+                        Icons.Default.AccountCircle,
+                        contentDescription = null,
+                        modifier = Modifier.padding(8.dp)
+                    )
+                    Text(
+                        text = "${it.from} pays ${it.to}: ${it.amount}",
+                        fontSize = 20.sp,
+                        modifier = Modifier.padding(top = 5.dp)
+                    )
+                }
+                IconButton (onClick = {}) {
+                    Icon(imageVector = Icons.Default.Info, contentDescription = null)
+                }
             }
         }
     }
