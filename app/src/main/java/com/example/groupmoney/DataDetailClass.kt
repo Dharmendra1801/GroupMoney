@@ -1,15 +1,19 @@
 package com.example.groupmoney
 
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
 
+@Parcelize
 data class DataDetailClass(val listOfIndividualPart: List<IndividualPart>,
                            val totalAmount: Int,
-                           val forWhom: List<String>)
-
+                           val forWhom: List<String>) : Parcelable
+@Parcelize
 data class IndividualPart(val name: String,
-                          val amount: Int)
+                          val amount: Int) : Parcelable
 
+@Parcelize
 data class FinalDetails(var allEntry: List<DataDetailClass>,
-                        var nameList: List<String>)
+                        var nameList: List<String>) : Parcelable
 
 
 data class OneOnOnePayments(

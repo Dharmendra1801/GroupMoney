@@ -34,23 +34,19 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.viewModelFactory
 
 @Composable
-fun ResultScreen() {
+fun ResultScreen(finalDetails: FinalDetails) {
 
     /////
-    val list1 = listOf<String>("Uday","Prince","Tipu","Nagu")
-    val indi1 = IndividualPart("Uday",100)
-    val indi2 = IndividualPart("Prince",200)
-    val indi3 = IndividualPart("Uday",1000)
-    val indi4 = IndividualPart("Nagu",2000)
-    val listOfIndi1 = listOf<IndividualPart>(indi1, indi2)
-    val listOfIndi2 = listOf<IndividualPart>(indi3, indi4)
-    val helper1 = DataDetailClass(listOfIndi1,0,list1)
-    val helper2 = DataDetailClass(listOfIndi2,0,list1)
-    val finale = listOf<DataDetailClass>(helper1, helper2)
-    val finalewaalilist = FinalDetails(finale,list1)
+//    val n1 = listOf<String>("Me","Ani","Dev","Aa","Ch","Am","Na")
+//    val n2 = listOf<String>("Me","Ani","Dev","Aa")
+//    val n3 = listOf<String>("Me","Dev","Aa")
+//    val indi1 = IndividualPart("Dev",80)
+//    val l1 = listOf<IndividualPart>(indi1)
+//    val t1 = DataDetailClass(l1,80,n2)
+//    val finalewaalilist = FinalDetails(finale,list1)
     //////
 
-    val viewModelFactory = CalculationsViewModelFactory(finalewaalilist)
+    val viewModelFactory = CalculationsViewModelFactory(finalDetails)
     val viewModel: CalculationsViewModel = viewModel(factory = viewModelFactory)
     val result = viewModel.result
     val normalList = result.value.normal
@@ -70,14 +66,6 @@ fun ResultScreen() {
             fontSize = 30.sp,
             fontWeight = FontWeight.Bold,
             color = Color.Blue)
-        
-        if (no=="1") {
-            displayForList(list = normalList)
-        } else if (no=="2") {
-            displayForList(list = detailedList)
-        } else {
-            displayForList(list = simplifiedList)
-        }
 
         Row(verticalAlignment = Alignment.Bottom,
             modifier = Modifier
@@ -100,13 +88,21 @@ fun ResultScreen() {
                 }
             }
         }
+
+        if (no=="1") {
+            displayForList(list = normalList)
+        } else if (no=="2") {
+            displayForList(list = detailedList)
+        } else {
+            displayForList(list = simplifiedList)
+        }
     }
 }
 
 
 @Composable
 fun displayForList(list: List<OneOnOnePayments>) {
-    LazyColumn() {
+    LazyColumn {
         items(list) {
             Row(modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween) {
@@ -135,5 +131,5 @@ fun displayForList(list: List<OneOnOnePayments>) {
 @Preview(showBackground = true)
 @Composable
 fun ResultScreenPreview() {
-    ResultScreen()
+    ResultScreen(finalDetails = FinalDetails(emptyList(), emptyList()))
 }

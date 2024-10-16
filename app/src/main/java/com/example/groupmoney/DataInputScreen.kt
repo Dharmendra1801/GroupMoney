@@ -26,6 +26,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -43,7 +44,7 @@ import androidx.compose.ui.unit.sp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun dataEntryScreen(finalDetails: FinalDetails, goToCalculationPage: (FinalDetails) -> Unit) {
+fun dataEntryScreen(goToCalculationPage: (FinalDetails) -> Unit) {
     var name by remember{ mutableStateOf("") }
     var amount by remember { mutableStateOf("") }
     val nameList = remember {mutableStateListOf<String>()}
@@ -57,16 +58,16 @@ fun dataEntryScreen(finalDetails: FinalDetails, goToCalculationPage: (FinalDetai
     val context = LocalContext.current
 
     /// Sample Data
-//    val list1 = listOf<String>("Uday","Nagu","Prince","Tipu")
+//    val list1 = listOf<String>("Uday","Nagu","Prince","Tipu","Tipu","Tipu","Tipu","Tipu")
 //    val indi1 = IndividualPart("Uday",100)
 //    val indi2 = IndividualPart("Prince",200)
 //    val indi3 = IndividualPart("Tipu",1000)
 //    val indi4 = IndividualPart("Nagu",2000)
 //    val listOfIndi1 = listOf<IndividualPart>(indi1, indi2)
 //    val listOfIndi2 = listOf<IndividualPart>(indi3, indi4)
-//    val helper1 = DataDetailClass(listOfIndi1,list1)
-//    val helper2 = DataDetailClass(listOfIndi2,list1)
-//    val finale = listOf<DataDetailClass>(helper1, helper2)
+//    val helper1 = DataDetailClass(listOfIndi1,300,list1)
+//    val helper2 = DataDetailClass(listOfIndi2,3000,list1)
+//    val finale = listOf<DataDetailClass>(helper1, helper2, helper2, helper2, helper2, helper2)
     ////
 
     Box(modifier = Modifier.fillMaxSize()) {
@@ -91,7 +92,7 @@ fun dataEntryScreen(finalDetails: FinalDetails, goToCalculationPage: (FinalDetai
                     Text(text = "Add Names")
                 }
             }
-            else {
+            else if (tempFinalDetails.isEmpty()) {
                 Button(
                     onClick = {detailPopup=true}, modifier = Modifier
                         .padding(16.dp)
@@ -241,7 +242,6 @@ fun dataEntryScreen(finalDetails: FinalDetails, goToCalculationPage: (FinalDetai
                                         DropdownMenuItem(
                                             text = { Text(item) },
                                             onClick = {
-                                                Toast.makeText(context, "$item Selected", Toast.LENGTH_SHORT).show()
                                                 if (item in listOfBeingPaidFor) {}
                                                 else {
                                                     listOfBeingPaidFor.add(item)
@@ -266,6 +266,7 @@ fun dataEntryScreen(finalDetails: FinalDetails, goToCalculationPage: (FinalDetai
                                     listOfBeingPaidFor.toList()
                                 )
                                 amount = ""
+                                totalAmount = 0
                                 tempFinalDetails.add(entry)
                                 listOfPayers.clear()
                                 listOfPayersWithAmount.clear()
@@ -288,11 +289,8 @@ fun dataEntryScreen(finalDetails: FinalDetails, goToCalculationPage: (FinalDetai
                                 listOfPayers.clear()
                                 listOfPayersWithAmount.clear()
                                 listOfBeingPaidFor.clear()
-
                                 Toast.makeText(context, "Transaction Added", Toast.LENGTH_SHORT)
                                     .show()
-                                finalDetails.allEntry = tempFinalDetails
-                                finalDetails.nameList = nameList
                                 detailPopup = false
                                 amount = ""
                             }) {
@@ -303,11 +301,19 @@ fun dataEntryScreen(finalDetails: FinalDetails, goToCalculationPage: (FinalDetai
                 }
             }
             else {
-                showTransactions(tempFinalDetails)
-            }
-            if (!tempFinalDetails.isEmpty()) {
-                Button(onClick = { goToCalculationPage(finalDetails) }) {
-                    Text("Calculate")
+                Column(verticalArrangement = Arrangement.SpaceAround,
+                    horizontalAlignment = Alignment.CenterHorizontally) {
+                    if (!tempFinalDetails.isEmpty()) {
+                        val finalDetails = FinalDetails(tempFinalDetails,nameList)
+                        Button(onClick = {
+                            goToCalculationPage(finalDetails)
+                        }, modifier = Modifier
+                            .padding(16.dp)
+                            .align(Alignment.CenterHorizontally)) {
+                            Text("Calculate")
+                        }
+                    }
+                    showTransactions(tempFinalDetails)
                 }
             }
         }
@@ -330,26 +336,39 @@ fun showTransactions(temp: List<DataDetailClass>) {
 fun entryDesign(entry: DataDetailClass) {
     Row(modifier = Modifier
         .padding(8.dp)
-        .fillMaxWidth(), horizontalArrangement = Arrangement.Absolute.SpaceBetween) {
-        Row {
+        .fillMaxWidth()) {
+        Row(horizontalArrangement = Arrangement.Start) {
             Icon(Icons.Default.Face, contentDescription = null, modifier = Modifier.padding(8.dp))
-            Column(modifier = Modifier.padding(8.dp)) {
-                Text("Paid By and Amount:")
-                Column {
-                    entry.listOfIndividualPart.forEach { item ->
-                        Text(text = "${item.name}: ${item.amount}  ", textAlign = TextAlign.Left)
-                    }
+            Column {
+                Text("Paid By and Amount:",
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 15.sp)
+                entry.listOfIndividualPart.forEach { item ->
+                    Text(text = "${item.name}: ${item.amount}  ", textAlign = TextAlign.Left)
                 }
-                Spacer(modifier = Modifier.height(10.dp))
-                Text("Paid For:")
-                Row {
-                    entry.forWhom.forEach { name ->
-                        Text(text = "$name  ", textAlign = TextAlign.Left)
-                    }
+                Column {
+                    Text(
+                        "Amount Paid: ",
+                        textAlign = TextAlign.Right,
+                        modifier = Modifier.padding(top = 16.dp),
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 15.sp
+                    )
+                    Text("${entry.totalAmount}")
                 }
             }
         }
-        Text ("Amount Paid: ${entry.totalAmount}" , textAlign = TextAlign.Right , modifier = Modifier.padding(8.dp))
+        Row(modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceAround) {
+            Column {
+                Text("Paid For:",
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 15.sp)
+                entry.forWhom.forEach { name ->
+                    Text(text = "$name  ", textAlign = TextAlign.Left)
+                }
+            }
+        }
     }
 }
 
@@ -358,5 +377,5 @@ fun entryDesign(entry: DataDetailClass) {
 @Preview(showBackground = true)
 @Composable
 fun dataEntryScreenPreview(){
-    dataEntryScreen(finalDetails = FinalDetails(emptyList(), emptyList()),{})
+    dataEntryScreen({})
 }

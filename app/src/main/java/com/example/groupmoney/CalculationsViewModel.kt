@@ -45,7 +45,11 @@ class CalculationsViewModel(finalDetails: FinalDetails): ViewModel() {
                 var amount = each.amount
                 val idx = nameList.indexOf(each.name)
                 finalPayments[idx] += amount
-                amount /= noOfPeople
+                if (amount%noOfPeople!=0) {
+                    amount = amount/noOfPeople + 1
+                } else {
+                    amount /= noOfPeople
+                }
                 payments.forWhom.forEach { name ->
                     val ind = nameList.indexOf(name)
                     paymentInfoArray[ind].add(payments)
