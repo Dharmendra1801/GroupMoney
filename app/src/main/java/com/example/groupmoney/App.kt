@@ -9,14 +9,20 @@ import androidx.navigation.compose.composable
 fun App(navController: NavHostController) {
     NavHost(navController = navController, startDestination = NavigationRouteClass.DataInputScreen.route) {
         composable(route = NavigationRouteClass.DataInputScreen.route) {
-            dataEntryScreen(goToCalculationPage = {
+            val finalDetailsBack = navController.previousBackStackEntry?.savedStateHandle?.get<FinalDetails>("finalDetailBack") ?: FinalDetails(emptyList(), emptyList())
+            dataEntryScreen( finalDetails = finalDetailsBack,
+                goToCalculationPage = {
                 navController.currentBackStackEntry?.savedStateHandle?.set("finalDetail",it)
                 navController.navigate(NavigationRouteClass.ResultScreen.route)
             })
         }
         composable(route = NavigationRouteClass.ResultScreen.route) {
             val result = navController.previousBackStackEntry?.savedStateHandle?.get<FinalDetails>("finalDetail") ?: FinalDetails(emptyList(), emptyList())
-            ResultScreen(finalDetails = result)
+            ResultScreen(goToDataScreen = {
+                navController.currentBackStackEntry?.savedStateHandle?.set("finalDetailBack",it)
+                navController.navigate(NavigationRouteClass.DataInputScreen.route)},
+                finalDetails = result)
         }
     }
 }
+

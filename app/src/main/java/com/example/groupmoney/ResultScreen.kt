@@ -3,6 +3,7 @@ package com.example.groupmoney
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -10,8 +11,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
-import androidx.compose.material.icons.filled.ExitToApp
-import androidx.compose.material.icons.filled.Face
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
@@ -34,7 +33,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.viewModelFactory
 
 @Composable
-fun ResultScreen(finalDetails: FinalDetails) {
+fun ResultScreen(goToDataScreen: (FinalDetails)->Unit, finalDetails: FinalDetails) {
 
     /////
 //    val n1 = listOf<String>("Me","Ani","Dev","Aa","Ch","Am","Na")
@@ -67,27 +66,6 @@ fun ResultScreen(finalDetails: FinalDetails) {
             fontWeight = FontWeight.Bold,
             color = Color.Blue)
 
-        Row(verticalAlignment = Alignment.Bottom,
-            modifier = Modifier
-                .padding(16.dp)
-                .fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceEvenly) {
-            if (no!="1") {
-                Button(onClick = { no = "1" }) {
-                    Text(text = "Normal")
-                }
-            }
-            if (no!="2") {
-                Button(onClick = { no = "2" }) {
-                    Text(text = "Detailed")
-                }
-            }
-            if (no!="3") {
-                Button(onClick = { no = "3" }) {
-                    Text(text = "Simplified")
-                }
-            }
-        }
 
         if (no=="1") {
             displayForList(list = normalList)
@@ -96,13 +74,44 @@ fun ResultScreen(finalDetails: FinalDetails) {
         } else {
             displayForList(list = simplifiedList)
         }
+
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Row(
+                verticalAlignment = Alignment.Bottom,
+                modifier = Modifier
+                    .padding(16.dp)
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+                if (no != "1") {
+                    Button(onClick = { no = "1" }) {
+                        Text(text = "Normal")
+                    }
+                }
+                if (no != "2") {
+                    Button(onClick = { no = "2" }) {
+                        Text(text = "  Detailed  ")
+                    }
+                }
+                if (no != "3") {
+                    Button(onClick = { no = "3" }) {
+                        Text(text = "Simplified")
+                    }
+                }
+            }
+            Button(onClick = { goToDataScreen(finalDetails) }) {
+                Text(text = "Payments Detail")
+            }
+        }
     }
 }
 
 
 @Composable
 fun displayForList(list: List<OneOnOnePayments>) {
-    LazyColumn {
+    LazyColumn(modifier = Modifier
+        .fillMaxWidth()
+        .fillMaxHeight(0.82F)) {
         items(list) {
             Row(modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween) {
@@ -131,5 +140,5 @@ fun displayForList(list: List<OneOnOnePayments>) {
 @Preview(showBackground = true)
 @Composable
 fun ResultScreenPreview() {
-    ResultScreen(finalDetails = FinalDetails(emptyList(), emptyList()))
+    ResultScreen({},finalDetails = FinalDetails(emptyList(), emptyList()))
 }
