@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -17,6 +18,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Face
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
@@ -50,16 +52,23 @@ fun dataEntryScreen(finalDetails: FinalDetails,goToCalculationPage: (FinalDetail
     var amount by remember { mutableStateOf("") }
     val nameList = remember { mutableStateListOf<String>() }
     val tempFinalDetails = remember { mutableStateListOf<DataDetailClass>() }
-    var namePopup by remember { mutableStateOf(false) }
-    var detailPopup by remember { mutableStateOf(false) }
+    var addNameIndicator by remember { mutableStateOf(true) }
+    var nameAddingIndicator by remember { mutableStateOf(false) }
+    var addPaymentIndicator by remember { mutableStateOf(false) }
+    var paymentAddingIndicator by remember { mutableStateOf(false) }
+    var showTransactionsIndicator by remember { mutableStateOf(false) }
     val listOfPayersWithAmount = remember { mutableStateListOf<IndividualPart>() }
     val listOfPayers = remember { mutableStateListOf<String>() }
     val listOfBeingPaidFor = remember { mutableStateListOf<String>() }
     var totalAmount by remember { mutableStateOf(0) }
     val context = LocalContext.current
+    if(finalDetails.allEntry.isNotEmpty()) {
+        addNameIndicator = false
+        showTransactionsIndicator = true
+    }
 
     /// Sample Data
-//    val list1 = listOf<String>("Uday","Nagu","Prince","Tipu","Tipau","Tiepu","Tiptu","Tipru","Tixpu","Tiwpu","Tipwu","Tialpu","Tsdhipu")
+//    val list1 = listOf<String>("Uday","Nagu","Prince","Prince","Tipu","Tipau","Tiepu","Tiptu","Tipru","Tipu","Tipau","Tiepu","Tiptu","Tipru","Prince","Tipu","Tipau","Tiepu","Tiptu","Tipru","Tixpu","Tiwpu","Tipwu","Tialpu","Tsdhipu")
 //    val indi1 = IndividualPart("Uday",100)
 //    val indi2 = IndividualPart("Prince",200)
 //    val indi3 = IndividualPart("Uday",1000)
@@ -71,166 +80,229 @@ fun dataEntryScreen(finalDetails: FinalDetails,goToCalculationPage: (FinalDetail
 //    val finale = listOf<DataDetailClass>(helper1, helper2, helper2, helper2, helper2, helper2)
     ////
 
-    if (finalDetails.allEntry.isEmpty()) {
-        Box(modifier = Modifier.fillMaxSize()) {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Spacer(
-                    modifier = Modifier
-                        .padding(10.dp)
-                        .fillMaxWidth()
-                )
-                if (nameList.isEmpty()) {
-                    Box(modifier = Modifier.fillMaxSize()) {
-                        Button(
-                            onClick = { namePopup = true }, modifier = Modifier
+
+    Box(modifier = Modifier.fillMaxSize()) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Spacer(
+                modifier = Modifier
+                    .padding(10.dp)
+                    .fillMaxWidth()
+            )
+            if (addNameIndicator) {
+                Box(modifier = Modifier.fillMaxSize()) {
+                    Column(
+                        modifier = Modifier
+                            .padding(16.dp)
+                            .align(Alignment.Center)
+                    ) {
+                        Text(
+                            text = "Enter names of all the people involved",
+                            modifier = Modifier
                                 .padding(16.dp)
-                                .align(Alignment.Center)
+                                .fillMaxWidth(),
+                            textAlign = TextAlign.Center,
+                            fontSize = 27.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.Blue
+                        )
+                        Button(
+                            onClick = {
+                                addNameIndicator = false
+                                nameAddingIndicator = true
+                            }, modifier = Modifier
+                                .padding(16.dp)
+                                .align(Alignment.CenterHorizontally)
                         ) {
                             Text(text = "Add Names")
                         }
                     }
-                } else if (tempFinalDetails.isEmpty()) {
-                    Box(modifier = Modifier.fillMaxSize()) {
-                        Button(
-                            onClick = { detailPopup = true }, modifier = Modifier
+                }
+            }
+            if (nameAddingIndicator) {
+                AlertDialog(
+                    onDismissRequest = {
+                        nameAddingIndicator = false
+                        addNameIndicator = true
+                    },
+                    modifier = Modifier
+                        .padding(8.dp)
+                        .background(Color.White)
+                ) {
+                    Column {
+                        Text(
+                            text = "Enter all the Names",
+                            modifier = Modifier
                                 .padding(16.dp)
-                                .align(Alignment.Center)
+                                .fillMaxWidth(),
+                            textAlign = TextAlign.Center,
+                            fontSize = 25.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.Blue
+                        )
+
+                        OutlinedTextField(
+                            value = name,
+                            label = { Text("") },
+                            onValueChange = {
+                                name = it
+                            },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp)
+                        )
+
+                        Row(
+                            horizontalArrangement = Arrangement.SpaceEvenly,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp)
+                        ) {
+                            Button(onClick = {
+                                nameList.add(name)
+                                Toast.makeText(context, "$name Added", Toast.LENGTH_SHORT)
+                                    .show()
+                                nameAddingIndicator = false
+                                addPaymentIndicator = true
+                            }) {
+                                Text(text = "Done")
+                            }
+                            Button(onClick = {
+                                nameList.add(name)
+                                Toast.makeText(context, "$name Added", Toast.LENGTH_SHORT)
+                                    .show()
+                                name = ""
+                            }) {
+                                Text(text = "Next Name")
+                            }
+                        }
+                    }
+                }
+            }
+            if (addPaymentIndicator) {
+                Column {
+                    Text(
+                        text = "Add Payments made by/for the following people:",
+                        modifier = Modifier
+                            .padding(16.dp)
+                            .fillMaxWidth(),
+                        textAlign = TextAlign.Center,
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.Blue
+                    )
+                    LazyColumn(modifier = Modifier.fillMaxHeight(0.9F)) {
+                        items(nameList) {
+                            Row {
+                                Icon(
+                                    Icons.Default.Face,
+                                    contentDescription = null,
+                                    modifier = Modifier.padding(8.dp)
+                                )
+                                Text(
+                                    text = it,
+                                    modifier = Modifier.padding(top = 8.dp),
+                                    fontSize = 17.sp
+                                )
+                            }
+                        }
+                    }
+                    Row(verticalAlignment = Alignment.Bottom,
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center) {
+                        Button(
+                            onClick = {
+                                addPaymentIndicator = false
+                                paymentAddingIndicator = true
+                            }, modifier = Modifier
+                                .padding(16.dp)
+                                .align(Alignment.CenterVertically)
                         ) {
                             Text(text = "Add Payments")
                         }
                     }
                 }
-                if (namePopup) {
-                    AlertDialog(
-                        onDismissRequest = { namePopup = false },
-                        modifier = Modifier
-                            .padding(8.dp)
-                            .background(Color.White)
-                    ) {
-                        Column {
+            }
+            if (paymentAddingIndicator) {
+                var dropdown by remember { mutableStateOf(false) }
+                AlertDialog(
+                    onDismissRequest = {
+                        paymentAddingIndicator = false
+                        addPaymentIndicator = true
+                    },
+                    modifier = Modifier
+                        .padding(8.dp)
+                        .background(Color.White)
+                ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text(
+                            text = "Enter Payment Details",
+                            modifier = Modifier.padding(10.dp),
+                            fontSize = 25.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.Blue
+                        )
+
+                        Column(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            var curr_name by remember { mutableStateOf("") }
                             Text(
-                                text = "Enter the Names",
+                                text = "Select the person who paid",
                                 modifier = Modifier
-                                    .padding(16.dp)
-                                    .fillMaxWidth(),
-                                textAlign = TextAlign.Center,
-                                fontSize = 25.sp,
+                                    .fillMaxWidth()
+                                    .padding(8.dp),
+                                fontSize = 18.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = Color.Black
+                                textAlign = TextAlign.Center
                             )
-
-                            OutlinedTextField(
-                                value = name,
-                                label = { Text("") },
-                                onValueChange = {
-                                    name = it
-                                },
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(16.dp)
-                            )
-
-                            Row(
-                                horizontalArrangement = Arrangement.SpaceEvenly,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(16.dp)
-                            ) {
-                                Button(onClick = {
-                                    nameList.add(name)
-                                    Toast.makeText(context, "$name Added", Toast.LENGTH_SHORT)
-                                        .show()
-                                    name = ""
-                                }) {
-                                    Text(text = "Next")
+                            Box {
+                                Button(
+                                    onClick = { dropdown = !dropdown },
+                                    modifier = Modifier
+                                        .padding(top = 8.dp)
+                                        .padding(8.dp)
+                                ) {
+                                    Text(text = "Names")
+                                    Icon(Icons.Default.ArrowDropDown, contentDescription = null)
                                 }
-                                Button(onClick = {
-                                    nameList.add(name)
-                                    Toast.makeText(context, "$name Added", Toast.LENGTH_SHORT)
-                                        .show()
-                                    namePopup = false
-                                }) {
-                                    Text(text = "Done")
+                                DropdownMenu(
+                                    expanded = dropdown,
+                                    onDismissRequest = { dropdown = false }) {
+                                    nameList.forEach { item ->
+                                        DropdownMenuItem(
+                                            text = { Text(item) },
+                                            onClick = {
+                                                Toast.makeText(
+                                                    context,
+                                                    "$item Selected",
+                                                    Toast.LENGTH_SHORT
+                                                ).show()
+                                                name = item
+                                                curr_name = item
+                                                if (item in listOfPayers) {
+                                                } else {
+                                                    listOfPayers.add(item)
+                                                }
+                                                dropdown = false
+                                            })
+                                    }
                                 }
                             }
-                        }
-                    }
-                }
-                if (detailPopup) {
-                    var dropdown by remember { mutableStateOf(false) }
-                    AlertDialog(
-                        onDismissRequest = { detailPopup = false },
-                        modifier = Modifier
-                            .padding(8.dp)
-                            .background(Color.White)
-                    ) {
-                        Column {
-                            Text(
-                                text = "Enter Transaction Details",
-                                modifier = Modifier
-                                    .padding(16.dp)
-                                    .fillMaxWidth(),
-                                textAlign = TextAlign.Center,
-                                fontSize = 20.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = Color.Black
-                            )
 
-                            Column(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalAlignment = Alignment.CenterHorizontally
-                            ) {
-                                Text(
-                                    text = "Select people who made the transactions",
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(8.dp),
-                                    fontSize = 15.sp
-                                )
-                                Box {
-                                    Button(
-                                        onClick = { dropdown = !dropdown },
-                                        modifier = Modifier.padding(top = 8.dp)
-                                    ) {
-                                        Text(text = "Drop Down")
-                                        Icon(Icons.Default.ArrowDropDown, contentDescription = null)
-                                    }
-                                    DropdownMenu(
-                                        expanded = dropdown,
-                                        onDismissRequest = { dropdown = false }) {
-                                        nameList.forEach { item ->
-                                            DropdownMenuItem(
-                                                text = { Text(item) },
-                                                onClick = {
-                                                    Toast.makeText(
-                                                        context,
-                                                        "$item Selected",
-                                                        Toast.LENGTH_SHORT
-                                                    ).show()
-                                                    name = item
-                                                    if (item in listOfPayers) {
-                                                    } else {
-                                                        listOfPayers.add(item)
-                                                    }
-                                                    dropdown = false
-                                                })
-                                        }
-                                    }
-                                }
-
-
+                            if (curr_name != "") {
                                 Row(
                                     modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(bottom = 8.dp),
+                                        .fillMaxWidth(),
                                     horizontalArrangement = Arrangement.SpaceBetween
                                 ) {
                                     Text(
-                                        text = "Enter Amount",
+                                        text = "$curr_name Paid:",
                                         modifier = Modifier
                                             .padding(24.dp)
                                             .padding(top = 17.dp),
-                                        fontSize = 15.sp
+                                        fontSize = 18.sp,
+                                        fontWeight = FontWeight.Bold
                                     )
                                     OutlinedTextField(
                                         value = amount,
@@ -240,6 +312,12 @@ fun dataEntryScreen(finalDetails: FinalDetails,goToCalculationPage: (FinalDetail
                                         },
                                         modifier = Modifier.padding(16.dp)
                                     )
+                                }
+                                Row(modifier = Modifier.padding(8.dp)) {
+                                    Icon(Icons.Default.Info, contentDescription = null, modifier = Modifier.padding(top=14.dp))
+                                    Text(text ="If more than one people contributed in a single payment, " +
+                                            "click below to add them",
+                                        modifier = Modifier.padding(8.dp))
                                 }
                                 Button(onClick = {
                                     val entry = IndividualPart(name, amount.toInt())
@@ -254,12 +332,14 @@ fun dataEntryScreen(finalDetails: FinalDetails,goToCalculationPage: (FinalDetail
 
 
                                 Text(
-                                    text = "Select people for whom the transactions were done for",
+                                    text = "Payment was done for",
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .padding(top = 10.dp)
                                         .padding(8.dp),
-                                    fontSize = 15.sp
+                                    fontSize = 18.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    textAlign = TextAlign.Center
                                 )
                                 Box {
                                     var dropdown by remember { mutableStateOf(false) }
@@ -267,7 +347,7 @@ fun dataEntryScreen(finalDetails: FinalDetails,goToCalculationPage: (FinalDetail
                                         onClick = { dropdown = !dropdown },
                                         modifier = Modifier.padding(8.dp)
                                     ) {
-                                        Text(text = "Drop Down")
+                                        Text(text = "Names")
                                         Icon(Icons.Default.ArrowDropDown, contentDescription = null)
                                     }
                                     DropdownMenu(
@@ -277,6 +357,11 @@ fun dataEntryScreen(finalDetails: FinalDetails,goToCalculationPage: (FinalDetail
                                             DropdownMenuItem(
                                                 text = { Text(item) },
                                                 onClick = {
+                                                    Toast.makeText(
+                                                        context,
+                                                        "$item Selected",
+                                                        Toast.LENGTH_SHORT
+                                                    ).show()
                                                     if (item in listOfBeingPaidFor) {
                                                     } else {
                                                         listOfBeingPaidFor.add(item)
@@ -285,113 +370,96 @@ fun dataEntryScreen(finalDetails: FinalDetails,goToCalculationPage: (FinalDetail
                                         }
                                     }
                                 }
-                            }
 
-                            Row(
-                                horizontalArrangement = Arrangement.SpaceEvenly,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(16.dp)
-                            ) {
-                                Button(onClick = {
-                                    val indientry = IndividualPart(name, amount.toInt())
-                                    totalAmount += amount.toInt()
-                                    listOfPayersWithAmount.add(indientry.copy())
-                                    val entry = DataDetailClass(
-                                        listOfPayersWithAmount.toList(),
-                                        totalAmount,
-                                        listOfBeingPaidFor.toList()
-                                    )
-                                    amount = ""
-                                    totalAmount = 0
-                                    tempFinalDetails.add(entry)
-                                    listOfPayers.clear()
-                                    listOfPayersWithAmount.clear()
-                                    listOfBeingPaidFor.clear()
-                                    Toast.makeText(context, "Transaction Added", Toast.LENGTH_SHORT)
-                                        .show()
-                                }) {
-                                    Text(text = "Next")
-                                }
-                                Button(onClick = {
-                                    val indientry = IndividualPart(name, amount.toInt())
-                                    totalAmount += amount.toInt()
-                                    listOfPayersWithAmount.add(indientry.copy())
-                                    val entry = DataDetailClass(
-                                        listOfPayersWithAmount.toList(),
-                                        totalAmount,
-                                        listOfBeingPaidFor.toList()
-                                    )
-                                    tempFinalDetails.add(entry)
-                                    listOfPayers.clear()
-                                    listOfPayersWithAmount.clear()
-                                    listOfBeingPaidFor.clear()
-                                    Toast.makeText(context, "Transaction Added", Toast.LENGTH_SHORT)
-                                        .show()
-                                    detailPopup = false
-                                    amount = ""
-                                }) {
-                                    Text(text = "Done")
-                                }
-                            }
-                        }
-                    }
-                } else {
-                    Column(
-                        verticalArrangement = Arrangement.SpaceAround,
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Text(
-                            text = "All Payments",
-                            modifier = Modifier.padding(8.dp),
-                            fontSize = 25.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Color.Blue
-                        )
-                        Box(modifier = Modifier.fillMaxSize()) {
-                            if (tempFinalDetails.isNotEmpty()) {
-                                val finalDetails = FinalDetails(tempFinalDetails, nameList)
-                                val viewModelFactory = PaymentsShowingViewModelFactory(finalDetails)
-                                val viewModel: PaymentsShowingViewModel =
-                                    viewModel(factory = viewModelFactory)
-                                val result = viewModel.result
-                                showTransactions(result.value.allEntry)
-                                Button(
-                                    onClick = { goToCalculationPage(finalDetails) },
+
+
+                                Row(
+                                    horizontalArrangement = Arrangement.SpaceEvenly,
                                     modifier = Modifier
+                                        .fillMaxWidth()
                                         .padding(16.dp)
-                                        .align(Alignment.BottomCenter)
                                 ) {
-                                    Text("Calculate")
+                                    Button(onClick = {
+                                        val indientry = IndividualPart(name, amount.toInt())
+                                        totalAmount += amount.toInt()
+                                        listOfPayersWithAmount.add(indientry.copy())
+                                        val entry = DataDetailClass(
+                                            listOfPayersWithAmount.toList(),
+                                            totalAmount,
+                                            listOfBeingPaidFor.toList()
+                                        )
+                                        tempFinalDetails.add(entry)
+                                        finalDetails.allEntry = tempFinalDetails
+                                        finalDetails.nameList = nameList
+                                        listOfPayers.clear()
+                                        listOfPayersWithAmount.clear()
+                                        listOfBeingPaidFor.clear()
+                                        Toast.makeText(
+                                            context,
+                                            "Transaction Added",
+                                            Toast.LENGTH_SHORT
+                                        )
+                                            .show()
+                                        paymentAddingIndicator = false
+                                        showTransactionsIndicator = true
+                                        amount = ""
+                                    }) {
+                                        Text(text = "Done")
+                                    }
+                                    Button(onClick = {
+                                        val indientry = IndividualPart(name, amount.toInt())
+                                        totalAmount += amount.toInt()
+                                        listOfPayersWithAmount.add(indientry.copy())
+                                        val entry = DataDetailClass(
+                                            listOfPayersWithAmount.toList(),
+                                            totalAmount,
+                                            listOfBeingPaidFor.toList()
+                                        )
+                                        amount = ""
+                                        totalAmount = 0
+                                        tempFinalDetails.add(entry)
+                                        listOfPayers.clear()
+                                        listOfPayersWithAmount.clear()
+                                        listOfBeingPaidFor.clear()
+                                        Toast.makeText(
+                                            context,
+                                            "Transaction Added",
+                                            Toast.LENGTH_SHORT
+                                        )
+                                            .show()
+                                    }) {
+                                        Text(text = "Next")
+                                    }
                                 }
                             }
                         }
                     }
                 }
             }
-        }
-    }
-    else {
-        Column(
-            verticalArrangement = Arrangement.SpaceAround,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(
-                text = "All Payments",
-                modifier = Modifier.padding(8.dp),
-                fontSize = 25.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.Blue
-            )
-            Box(modifier = Modifier.fillMaxSize()) {
-                showTransactions(finalDetails.allEntry)
-                Button(
-                    onClick = { goToCalculationPage(finalDetails) },
-                    modifier = Modifier
-                        .padding(16.dp)
-                        .align(Alignment.BottomCenter)
+            if (showTransactionsIndicator) {
+                Column(
+                    verticalArrangement = Arrangement.SpaceAround,
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text("Result Page")
+                    Text(
+                        text = "All Payments",
+                        modifier = Modifier.padding(8.dp),
+                        fontSize = 25.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.Blue
+                    )
+                    Box(modifier = Modifier.fillMaxSize()) {
+                            showTransactions(finalDetails.allEntry)
+                            Button(
+                                onClick = { goToCalculationPage(finalDetails) },
+                                modifier = Modifier
+                                    .padding(16.dp)
+                                    .align(Alignment.BottomCenter)
+                            ) {
+                                Text("Calculate")
+                            }
+
+                    }
                 }
             }
         }
@@ -425,7 +493,7 @@ fun entryDesign(entry: DataDetailClass) {
                 }
                 Column {
                     Text(
-                        "Amount Paid: ",
+                        "Total Amount Paid: ",
                         textAlign = TextAlign.Right,
                         modifier = Modifier.padding(top = 16.dp),
                         fontWeight = FontWeight.Bold,
