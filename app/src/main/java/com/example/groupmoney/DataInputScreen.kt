@@ -158,19 +158,23 @@ fun dataEntryScreen(finalDetails: FinalDetails,goToCalculationPage: (FinalDetail
                                 .padding(16.dp)
                         ) {
                             Button(onClick = {
-                                nameList.add(name)
-                                Toast.makeText(context, "$name Added", Toast.LENGTH_SHORT)
-                                    .show()
-                                nameAddingIndicator = false
-                                addPaymentIndicator = true
+                                if(name!="") {
+                                    nameList.add(name)
+                                    Toast.makeText(context, "$name Added", Toast.LENGTH_SHORT)
+                                        .show()
+                                }
+                                    nameAddingIndicator = false
+                                    addPaymentIndicator = true
                             }) {
                                 Text(text = "Done")
                             }
                             Button(onClick = {
-                                nameList.add(name)
-                                Toast.makeText(context, "$name Added", Toast.LENGTH_SHORT)
-                                    .show()
-                                name = ""
+                                if (name!="") {
+                                    nameList.add(name)
+                                    Toast.makeText(context, "$name Added", Toast.LENGTH_SHORT)
+                                        .show()
+                                    name = ""
+                                }
                             }) {
                                 Text(text = "Next Name")
                             }
@@ -322,6 +326,7 @@ fun dataEntryScreen(finalDetails: FinalDetails,goToCalculationPage: (FinalDetail
                                 Button(onClick = {
                                     val entry = IndividualPart(name, amount.toInt())
                                     totalAmount += amount.toInt()
+                                    curr_name = "..."
                                     name = ""
                                     amount = ""
                                     listOfPayersWithAmount.add(entry.copy())
@@ -425,8 +430,8 @@ fun dataEntryScreen(finalDetails: FinalDetails,goToCalculationPage: (FinalDetail
                                             context,
                                             "Transaction Added",
                                             Toast.LENGTH_SHORT
-                                        )
-                                            .show()
+                                        ).show()
+                                        curr_name = ""
                                     }) {
                                         Text(text = "Next")
                                     }

@@ -120,7 +120,7 @@ fun ResultScreen(goToDataScreen: (FinalDetails)->Unit, finalDetails: FinalDetail
                 }
             }
             Button(onClick = { goToDataScreen(finalDetails) }) {
-                Text(text = "Payments Detail")
+                Text(text = "Payment Detail")
             }
         }
     }
